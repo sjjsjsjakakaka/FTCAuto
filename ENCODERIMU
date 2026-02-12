@@ -8,21 +8,21 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-@Autonomous(name="Tank IMU Localization")
-public class TankIMULocalization extends LinearOpMode {
+@Autonomous(name = "Tank Encoder + IMU Localization")
+public class TankEncoderIMUAuto extends LinearOpMode {
 
     DcMotor leftMotor, rightMotor;
     IMU imu;
 
-    // Pose
+    // Pose estimate
     double x = 0;
     double y = 0;
     double heading = 0;
 
-    // Wheel constants (CHANGE THESE)
     double wheelDiameter = 3.7795;   // inches
-    double ticksPerRev = 537.6;      // goBILDA 312 RPM
+    double ticksPerRev = 537.6;      // goBILDA 312RPM
     double inchesPerTick = (Math.PI * wheelDiameter) / ticksPerRev;
+    // =======================================
 
     int lastLeft = 0;
     int lastRight = 0;
@@ -34,6 +34,9 @@ public class TankIMULocalization extends LinearOpMode {
         rightMotor = hardwareMap.get(DcMotor.class, "rightMotor");
 
         rightMotor.setDirection(DcMotor.Direction.REVERSE);
+
+        leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Reset encoders
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -49,6 +52,7 @@ public class TankIMULocalization extends LinearOpMode {
                 new RevHubOrientationOnRobot(
                         RevHubOrientationOnRobot.LogoFacingDirection.UP,
                         RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
+                        // 🔁 CHANGE FORWARD if your USB faces another direction
                 )
         );
 
@@ -56,7 +60,14 @@ public class TankIMULocalization extends LinearOpMode {
 
         waitForStart();
 
-        // Example: go to (24, 24)
+        imu.resetYaw();   // Make starting heading = 0
+
+        // Starting pose
+        x = 0;
+        y = 0;
+        heading = 0;
+
+        // Example move
         goToPosition(24, 24);
 
         sleep(2000);
@@ -97,7 +108,7 @@ public class TankIMULocalization extends LinearOpMode {
 
             double distance = Math.hypot(dx, dy);
 
-            if (distance < 1.0) { // 1 inch tolerance
+            if (distance < 1.0) {  // 1 inch tolerance
                 leftMotor.setPower(0);
                 rightMotor.setPower(0);
                 break;
@@ -112,7 +123,7 @@ public class TankIMULocalization extends LinearOpMode {
             double turn = angleError * kP_turn;
             double drive = distance * kP_drive;
 
-            drive = Math.min(drive, 0.6);
+            drive = Math.min(drive, 0.6);  // limit max speed
 
             double leftPower = drive - turn;
             double rightPower = drive + turn;
