@@ -19,10 +19,9 @@ public class TankEncoderIMUAuto extends LinearOpMode {
     double y = 0;
     double heading = 0;
 
-    double wheelDiameter = 3.7795;   // inches
-    double ticksPerRev = 537.6;      // goBILDA 312RPM
+    double wheelDiameter = 3.7795;  
+    double ticksPerRev = 537.6;      
     double inchesPerTick = (Math.PI * wheelDiameter) / ticksPerRev;
-    // =======================================
 
     int lastLeft = 0;
     int lastRight = 0;
@@ -38,14 +37,12 @@ public class TankEncoderIMUAuto extends LinearOpMode {
         leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        // Reset encoders
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        // IMU setup
         imu = hardwareMap.get(IMU.class, "imu");
 
         IMU.Parameters parameters = new IMU.Parameters(
@@ -60,14 +57,12 @@ public class TankEncoderIMUAuto extends LinearOpMode {
 
         waitForStart();
 
-        imu.resetYaw();   // Make starting heading = 0
+        imu.resetYaw();  
 
-        // Starting pose
         x = 0;
         y = 0;
         heading = 0;
 
-        // Example move
         goToPosition(24, 24);
 
         sleep(2000);
@@ -117,7 +112,6 @@ public class TankEncoderIMUAuto extends LinearOpMode {
             double targetAngle = Math.atan2(dy, dx);
             double angleError = targetAngle - heading;
 
-            // Normalize angle
             angleError = Math.atan2(Math.sin(angleError), Math.cos(angleError));
 
             double turn = angleError * kP_turn;
