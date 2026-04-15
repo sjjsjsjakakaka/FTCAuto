@@ -49,7 +49,6 @@ public class TankEncoderIMUAuto extends LinearOpMode {
                 new RevHubOrientationOnRobot(
                         RevHubOrientationOnRobot.LogoFacingDirection.UP,
                         RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
-                        // 🔁 CHANGE FORWARD if your USB faces another direction
                 )
         );
 
