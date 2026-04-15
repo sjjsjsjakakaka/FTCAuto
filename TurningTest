@@ -11,21 +11,17 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 @Autonomous(name="Auto_Rotate_Example", group="Autonomous")
 public class AutoRotate extends LinearOpMode {
 
-    private DcMotorEx motor0, motor1; // Your Tank Drive motors
+    private DcMotorEx motor0, motor1;
     private IMU imu;
 
     @Override
     public void runOpMode() {
-        // 1. Hardware Mapping
         motor0 = hardwareMap.get(DcMotorEx.class, "motor0");
         motor1 = hardwareMap.get(DcMotorEx.class, "motor1");
         
-        // Based on your TeleOp, motor0 is reversed
         motor0.setDirection(DcMotorEx.Direction.REVERSE);
 
-        // 2. Initialize IMU
-        // For a flat hub with the logo up and USB ports facing forward:
-        // Logo Facing: UP, USB Facing: FORWARD
+
         imu = hardwareMap.get(IMU.class, "imu");
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.UP,
@@ -34,38 +30,27 @@ public class AutoRotate extends LinearOpMode {
 
         waitForStart();
 
-        // --- EXAMPLE USAGE ---
         rotate(90, 0.5);  // Turn 90 degrees right
         sleep(1000);
         rotate(-90, 0.5); // Turn back 90 degrees left
     }
 
-    /**
-     * Rotates the robot by a specific degree relative to its current heading.
-     * @param degrees Positive for Right/Clockwise, Negative for Left/Counter-Clockwise
-     * @param power Max motor power (0 to 1)
-     */
-    public void rotate(double degrees, double power) {
-        imu.resetYaw(); // Reset heading to 0 at the start of the turn
 
-        double targetAngle = -degrees; // IMU uses right-hand rule (left is positive)
+    public void rotate(double degrees, double power) {
+        imu.resetYaw();
+        double targetAngle = -degrees; 
         double currentAngle;
         
-        // Simple P-loop (Proportional) to slow down as we get closer
         while (opModeIsActive()) {
             YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
             currentAngle = orientation.getYaw(AngleUnit.DEGREES);
 
             double error = targetAngle - currentAngle;
 
-            // Stop if we are within 1 degree of target
             if (Math.abs(error) < 1.0) break;
 
-            // Calculate motor power based on error
-            // As error gets smaller, power gets smaller
             double turnPower = Range.clip(error * 0.05, -power, power);
 
-            // Tank drive turn: motors move in opposite directions
             motor0.setPower(-turnPower); 
             motor1.setPower(turnPower);
 
@@ -74,7 +59,6 @@ public class AutoRotate extends LinearOpMode {
             telemetry.update();
         }
 
-        // Stop motors after turn is complete
         motor0.setPower(0);
         motor1.setPower(0);
     }
